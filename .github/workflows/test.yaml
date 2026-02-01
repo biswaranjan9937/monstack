@@ -1,0 +1,32 @@
+name: AWS example workflow
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  BUCKET_NAME: "BUCKET-NAME"
+  AWS_REGION: "ap-south-1"
+
+permissions:
+  id-token: write     # Required for OIDC
+  contents: read      # Required for checkout
+
+jobs:
+  S3GetObject:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Configure AWS credentials using OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::793524670633:role/GitHub-S3-access
+          role-session-name: github-actions-session
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: List S3 buckets
+        run: aws s3 ls
